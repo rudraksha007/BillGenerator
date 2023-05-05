@@ -4,18 +4,15 @@
  */
 package me.rudraksha007.billgenui.GUI;
 
-import me.rudraksha007.billgenui.AppFrame;
-import me.rudraksha007.billgenui.DataManager;
-import me.rudraksha007.billgenui.Item;
-import me.rudraksha007.billgenui.Main;
+import me.rudraksha007.billgenui.*;
 
 import javax.swing.*;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
+import java.awt.event.*;
+import java.util.*;
+import java.util.Timer;
 
 /**
  *
@@ -32,72 +29,12 @@ public class AddProduct extends javax.swing.JFrame {
         btnCancel.setFocusPainted(false);
         btnClear.setFocusPainted(false);
         btnSave.setFocusPainted(false);
-
-        cmbBrands.getEditor().getEditorComponent().addFocusListener(new FocusListener() {
+        btnAdd.setFocusPainted(false);
+        btnDelete.setFocusPainted(false);
+        tblSizes.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
-            public void focusGained(FocusEvent e) {
-                List<String>list = new ArrayList<>();
-                DefaultComboBoxModel<String>model = (DefaultComboBoxModel<String>) cmbBrands.getModel();
-                for (int i = 1; i < cmbBrands.getModel().getSize(); i++) {
-                    list.add(cmbBrands.getModel().getElementAt(i));
-                }
-                model.removeAllElements();
-                model.addElement("");
-                model.addAll(list);
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                DefaultComboBoxModel<String>model = (DefaultComboBoxModel<String>) cmbBrands.getModel();
-                if (cmbBrands.getSelectedIndex()==0){
-                    List<String>list = new ArrayList<>();
-                    for (int i = 1; i < cmbBrands.getModel().getSize(); i++) {
-                        list.add(cmbBrands.getModel().getElementAt(i));
-                    }
-                    model.removeAllElements();
-                    model.addElement("Select or Add Brand");
-                    model.addAll(list);
-                    return;
-                }
-                if (Main.items.containsKey(String.valueOf(cmbBrands.getSelectedItem()))){
-                    model = (DefaultComboBoxModel<String>) cmbProduct.getModel();
-                    for (Item item: Main.items.get(String.valueOf(model.getSelectedItem()))){
-                        model.addElement(item.getName());
-                    }
-                }
-
-            }
-        });
-
-        cmbProduct.getEditor().getEditorComponent().addFocusListener(new FocusListener() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                List<String>list = new ArrayList<>();
-                DefaultComboBoxModel<String>model = (DefaultComboBoxModel<String>) cmbProduct.getModel();
-                for (int i = 1; i < cmbProduct.getModel().getSize(); i++) {
-                    list.add(cmbProduct.getModel().getElementAt(i));
-                }
-                model.removeAllElements();
-                model.addElement("");
-                model.addAll(list);
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                DefaultComboBoxModel<String>model = (DefaultComboBoxModel<String>) cmbProduct.getModel();
-                if (cmbProduct.getSelectedIndex()==0){
-                    List<String>list = new ArrayList<>();
-                    for (int i = 1; i < cmbProduct.getModel().getSize(); i++) {
-                        list.add(cmbProduct.getModel().getElementAt(i));
-                    }
-                    model.removeAllElements();
-                    model.addElement("Select or Add Product");
-                    model.addAll(list);
-                    return;
-                }
-                if (cmbProduct.getSelectedIndex()>0){
-                    String brand = String.valueOf(cmbBrands.getSelectedItem());
-                }
+            public void valueChanged(ListSelectionEvent e) {
+                btnDelete.setEnabled(true);
             }
         });
     }
@@ -116,19 +53,27 @@ public class AddProduct extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         txtSize = new javax.swing.JTextField();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        list = new javax.swing.JList<>();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
         btnSave = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        btnDelete = new javax.swing.JButton();
         btnClear = new javax.swing.JButton();
         btnCancel = new javax.swing.JButton();
         cmbProduct = new javax.swing.JComboBox<>();
+        sprCost = new javax.swing.JSpinner();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        tblSizes = new javax.swing.JTable();
+        btnAdd = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
-        setMinimumSize(new java.awt.Dimension(400, 400));
-        setPreferredSize(new java.awt.Dimension(400, 400));
+        setTitle("Add Product");
+        setMinimumSize(new java.awt.Dimension(450, 470));
+        setPreferredSize(new java.awt.Dimension(450, 470));
+        addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                formMouseClicked(evt);
+            }
+        });
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 formWindowClosing(evt);
@@ -138,30 +83,25 @@ public class AddProduct extends javax.swing.JFrame {
         jLabel1.setText("Brand Name");
 
         cmbBrands.setEditable(true);
-        cmbBrands.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select or Add Brand" }));
         cmbBrands.setAutoscrolls(true);
+        cmbBrands.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cmbBrandsItemStateChanged(evt);
+            }
+        });
+        cmbBrands.addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
+            public void popupMenuCanceled(javax.swing.event.PopupMenuEvent evt) {
+            }
+            public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent evt) {
+            }
+            public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {
+                cmbBrandsPopupMenuWillBecomeVisible(evt);
+            }
+        });
 
         jLabel2.setText("Product Name");
 
-        jLabel3.setText("Sizes");
-
-        txtSize.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                txtSizeFocusGained(evt);
-            }
-        });
-        txtSize.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtSizeKeyPressed(evt);
-            }
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                txtSizeKeyTyped(evt);
-            }
-        });
-
-        list.setModel(new DefaultListModel<String>());
-        list.setEnabled(false);
-        jScrollPane1.setViewportView(list);
+        jLabel3.setText("Size and Cost");
 
         jTextArea1.setColumns(20);
         jTextArea1.setLineWrap(true);
@@ -178,7 +118,13 @@ public class AddProduct extends javax.swing.JFrame {
             }
         });
 
-        jButton2.setText("Delete Size");
+        btnDelete.setText("Delete Size");
+        btnDelete.setEnabled(false);
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
 
         btnClear.setText("Clear ");
         btnClear.addActionListener(new java.awt.event.ActionListener() {
@@ -195,101 +141,161 @@ public class AddProduct extends javax.swing.JFrame {
         });
 
         cmbProduct.setEditable(true);
-        cmbProduct.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select or Add Product" }));
+        cmbProduct.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cmbProductItemStateChanged(evt);
+            }
+        });
+        cmbProduct.addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
+            public void popupMenuCanceled(javax.swing.event.PopupMenuEvent evt) {
+            }
+            public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent evt) {
+            }
+            public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {
+                cmbProductPopupMenuWillBecomeVisible(evt);
+            }
+        });
+
+        tblSizes.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Size", "Cost"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.Float.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tblSizes.getTableHeader().setReorderingAllowed(false);
+        jScrollPane3.setViewportView(tblSizes);
+        if (tblSizes.getColumnModel().getColumnCount() > 0) {
+            tblSizes.getColumnModel().getColumn(0).setResizable(false);
+            tblSizes.getColumnModel().getColumn(1).setResizable(false);
+        }
+
+        btnAdd.setText("Add");
+        btnAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(58, 58, 58)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButton2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnClear, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(cmbBrands, 0, 0, Short.MAX_VALUE)
-                            .addComponent(txtSize, javax.swing.GroupLayout.DEFAULT_SIZE, 151, Short.MAX_VALUE)
-                            .addComponent(cmbProduct, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addComponent(jScrollPane2))
-                .addGap(58, 58, 58))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnSave)
-                .addContainerGap())
+                .addGap(54, 54, 54)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 341, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                            .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnSave))
+                        .addComponent(jScrollPane2)
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGap(8, 8, 8)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(cmbProduct, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(cmbBrands, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(txtSize, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(sprCost, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(btnAdd))))
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(btnDelete)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnClear, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(55, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addContainerGap(20, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnSave)
                     .addComponent(btnCancel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(cmbBrands)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cmbProduct, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtSize, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(18, 18, 18)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cmbBrands, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cmbProduct, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton2)
-                    .addComponent(btnClear))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(txtSize, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(sprCost, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnAdd)))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnClear)
+                    .addComponent(btnDelete))
+                .addGap(43, 43, 43))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-        // TODO add your handling code here:
-        String Brand = String.valueOf(cmbBrands.getSelectedItem()).trim();
-        String Name = String.valueOf(cmbProduct.getSelectedItem()).trim();
-        List<String>sizes = new ArrayList<>();
-        for (int i = 0; i < list.getModel().getSize(); i++) {
-            sizes.add(list.getModel().getElementAt(i));
+        String Brand = ((JTextField) cmbBrands.getEditor().getEditorComponent()).getText().trim();
+        if (Brand.isEmpty()){
+            JOptionPane.showMessageDialog(this, "Please Enter Brand Name First!"
+            , "Enter Brand", JOptionPane.ERROR_MESSAGE);
+            return;
         }
-        Item item = new Item(Name,sizes);
+        String Name = ((JTextField) cmbProduct.getEditor().getEditorComponent()).getText().trim();
+        Map<String, Integer>sizes = new HashMap<>();
+        if (this.tblSizes.getModel().getRowCount()<1){
+            JOptionPane.showMessageDialog(this, "Please Add at least 1 size"
+                    , "Add Size", JOptionPane.ERROR_MESSAGE);
+
+            return;
+        }
+        for (int i = 0; i < this.tblSizes.getModel().getRowCount(); i++) {
+            sizes.put(String.valueOf(this.tblSizes.getModel().getValueAt(i,0)),
+                    Integer.parseInt(String.valueOf(this.tblSizes.getModel().getValueAt(i,1))));
+        }
+        Item item = new Item(Name,Brand,sizes);
         if (Main.items.containsKey(Brand)){
-            List<Item> list = new ArrayList<>(Main.items.get(Brand));
-            list.add(item);
-            Main.items.put(Brand, list);
+            for (Item i: Main.items.get(Brand)){
+                if (!i.getName().equals(Name))continue;
+                i.setSizes(sizes);
+            }
+            for (Item i: Main.allItems){
+                if (!i.getName().equals(Name))continue;
+                i.setSizes(sizes);
+            }
         }else {
             Main.items.put(Brand, Collections.singletonList(item));
-        }
-        for (Item it: Main.allItems){
-            if (it.getName().equals(Name)){
-                if (it.getSizes().contains(txtSize.getText().trim())){
-                    JOptionPane.showMessageDialog(this, "Item of same size and name already exists!");
-                }
-                else {
-                    JOptionPane.showConfirmDialog(this,
-                            "Item of same size and name already exists! Add this as new Item size?\n" +
-                                    "Available sizes: "+ it.getSizes(),
-                            "Existing Item", JOptionPane.YES_NO_CANCEL_OPTION);
-
-                }
-            }
+            Main.allItems.add(item);
         }
         new DataManager().saveData();
         Main.frames.get(AppFrame.HOME.toString()).setVisible(true);
@@ -298,61 +304,126 @@ public class AddProduct extends javax.swing.JFrame {
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
-        // TODO add your handling code here:
         this.setVisible(false);
         Main.frames.get("home").setVisible(true);
         clearForm();
     }//GEN-LAST:event_btnCancelActionPerformed
 
     private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
-        // TODO add your handling code here:
         clearForm();
     }//GEN-LAST:event_btnClearActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        // TODO add your handling code here:
         btnCancelActionPerformed(null);
     }//GEN-LAST:event_formWindowClosing
 
-    private void txtSizeKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSizeKeyTyped
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtSizeKeyTyped
+    private void cmbBrandsItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cmbBrandsItemStateChanged
+        if (evt.getStateChange()== ItemEvent.SELECTED){
+            DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) cmbProduct.getModel();
+            model.removeAllElements();
+            model.addElement("");
+            if (!(cmbBrands.getSelectedIndex() >0)){
+                return;
+            }
+            if (Main.items.containsKey(String.valueOf(cmbBrands.getSelectedItem()))){
+                int i =1;
+                for (Item item: Main.items.get(String.valueOf(evt.getItem()))){
+                    if (model.getElementAt(i)!=null)if (model.getElementAt(i).equals(item.getName()))continue;
+                    model.addElement(item.getName());
+                }
+                cmbProduct.setModel(model);
+            }
+        }
+    }//GEN-LAST:event_cmbBrandsItemStateChanged
 
-    private void txtSizeKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSizeKeyPressed
-        // TODO add your handling code here:
-        if (evt.getKeyCode()==10){
-            if (txtSize.getText().trim().length()==0)return;
-            DefaultListModel<String>model = (DefaultListModel<String>) list.getModel();
-            model.add(model.getSize(),txtSize.getText());
-            txtSize.setText("");
+    private void cmbProductItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cmbProductItemStateChanged
+        if (evt.getStateChange()==ItemEvent.SELECTED){
+            if (!(cmbProduct.getSelectedIndex()>0))return;
+            String brand = String.valueOf(cmbBrands.getSelectedItem());
+            List<Item>itemList = Main.items.get(brand);
+            for (Item i: itemList){
+                if (!i.getName().equals(String.valueOf(cmbProduct.getSelectedItem())))continue;
+                DefaultTableModel mod = (DefaultTableModel) tblSizes.getModel();
+                mod.setRowCount(i.getSizes().size());
+                Object[][] data = new Object[i.getSizes().size()][i.getSizes().size()];
+                int j = 0;
+                for (Map.Entry<String,Integer> entry: i.getSizes().entrySet()){
+                    data[j]=new Object[]{entry.getKey(), entry.getValue()};
+                    j++;
+                }
+                mod.setDataVector(data, new String[]{"Size", "Cost"});
+                tblSizes.setModel(mod);
+            }
 
         }
-    }//GEN-LAST:event_txtSizeKeyPressed
+    }//GEN-LAST:event_cmbProductItemStateChanged
 
-    private void txtSizeFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtSizeFocusGained
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtSizeFocusGained
+    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
+        String size = txtSize.getText().trim();
+        if (size.isEmpty())return;
+        float cost = Float.parseFloat(String.valueOf(sprCost.getModel().getValue()));
+        if (cost<=0)return;
+        DefaultTableModel model = (DefaultTableModel) tblSizes.getModel();
+        for (int i = 0; i < model.getRowCount(); i++) {
+            if (model.getValueAt(i,0).equals(size)){
+                txtSize.setText(null);
+                sprCost.setValue(0);
+                return;
+            }
+        }
+        model.insertRow(model.getRowCount(), new Object[]{txtSize.getText().trim(),
+                Integer.parseInt(String.valueOf(sprCost.getValue()))});
+        txtSize.setText(null);
+        sprCost.setValue(0);
+    }//GEN-LAST:event_btnAddActionPerformed
+
+    private void cmbBrandsPopupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {//GEN-FIRST:event_cmbBrandsPopupMenuWillBecomeVisible
+
+    }//GEN-LAST:event_cmbBrandsPopupMenuWillBecomeVisible
+
+    private void cmbProductPopupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {//GEN-FIRST:event_cmbProductPopupMenuWillBecomeVisible
+
+    }//GEN-LAST:event_cmbProductPopupMenuWillBecomeVisible
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        if (!(tblSizes.getSelectedRow() >=0))return;
+        DefaultTableModel model = (DefaultTableModel) tblSizes.getModel();
+        model.removeRow(tblSizes.getSelectedRow());
+        tblSizes.setModel(model);
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void formMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseClicked
+        tblSizes.clearSelection();
+        btnDelete.setEnabled(false);
+    }//GEN-LAST:event_formMouseClicked
 
     public void clearForm(){
         cmbBrands.setSelectedIndex(0);
-//        txtProductName.setText("");
+        cmbProduct.setModel(new DefaultComboBoxModel<>(new String[]{""}));
+        cmbProduct.setSelectedIndex(0);
+
         txtSize.setText("");
-        list.clearSelection();
-        DefaultListModel<String>model = (DefaultListModel<String>) list.getModel();
-        model.removeAllElements();
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < tblSizes.getModel().getRowCount(); j++) {
+                tblSizes.getModel().setValueAt(null, j, i);
+            }
+        }
+        DefaultTableModel model = (DefaultTableModel) tblSizes.getModel();
+        model.setRowCount(0);
+        tblSizes.setModel(model);
     }
 
     public void updateBrands(){
         if (Main.items !=null && Main.items.keySet().size()!=0){
             String[] modelData = new String[Main.items.keySet().size()+1];
-            modelData[0] = "Select or Add Brand";
+            modelData[0] = "";
             int i=1;
             for(String key: Main.items.keySet()){
                 modelData[i] = key;
                 i++;
             }
             cmbBrands.setModel(new javax.swing.DefaultComboBoxModel<>(modelData));
-        } else cmbBrands.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{"Select or Add Brand"}));
+        } else cmbBrands.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{""}));
     }
 
     @Override
@@ -363,11 +434,11 @@ public class AddProduct extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -376,39 +447,30 @@ public class AddProduct extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(AddProduct.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(AddProduct.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(AddProduct.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(AddProduct.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new AddProduct().setVisible(true);
-            }
-        });
+        java.awt.EventQueue.invokeLater(() -> new AddProduct().setVisible(true));
     }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAdd;
     private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnClear;
+    private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnSave;
     private javax.swing.JComboBox<String> cmbBrands;
     private javax.swing.JComboBox<String> cmbProduct;
-    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JList<String> list;
+    private javax.swing.JSpinner sprCost;
+    private javax.swing.JTable tblSizes;
     private javax.swing.JTextField txtSize;
     // End of variables declaration//GEN-END:variables
 }

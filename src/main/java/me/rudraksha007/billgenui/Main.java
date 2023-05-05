@@ -5,14 +5,10 @@
 package me.rudraksha007.billgenui;
 
 import me.rudraksha007.billgenui.GUI.*;
-import me.rudraksha007.billgenui.Google.Connections;
 
 import javax.swing.*;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Timer;
+import java.util.*;
 
 /**
  *
@@ -23,7 +19,6 @@ public class Main {
     public static Map<String, JFrame>frames = new HashMap<>();
     public static Map<String, List<Item>>items = new HashMap<>();
     public static List<Item>allItems = new ArrayList<>();
-
     public static void main(String[] args) {
         Map<String, List<Item>>items = new DataManager().loadProductData();
         if (items!=null){
