@@ -89,15 +89,6 @@ public class AddProduct extends javax.swing.JFrame {
                 cmbBrandsItemStateChanged(evt);
             }
         });
-        cmbBrands.addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
-            public void popupMenuCanceled(javax.swing.event.PopupMenuEvent evt) {
-            }
-            public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent evt) {
-            }
-            public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {
-                cmbBrandsPopupMenuWillBecomeVisible(evt);
-            }
-        });
 
         jLabel2.setText("Product Name");
 
@@ -144,15 +135,6 @@ public class AddProduct extends javax.swing.JFrame {
         cmbProduct.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 cmbProductItemStateChanged(evt);
-            }
-        });
-        cmbProduct.addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
-            public void popupMenuCanceled(javax.swing.event.PopupMenuEvent evt) {
-            }
-            public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent evt) {
-            }
-            public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {
-                cmbProductPopupMenuWillBecomeVisible(evt);
             }
         });
 
@@ -376,14 +358,6 @@ public class AddProduct extends javax.swing.JFrame {
         txtSize.setText(null);
         sprCost.setValue(0);
     }//GEN-LAST:event_btnAddActionPerformed
-
-    private void cmbBrandsPopupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {//GEN-FIRST:event_cmbBrandsPopupMenuWillBecomeVisible
-
-    }//GEN-LAST:event_cmbBrandsPopupMenuWillBecomeVisible
-
-    private void cmbProductPopupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {//GEN-FIRST:event_cmbProductPopupMenuWillBecomeVisible
-
-    }//GEN-LAST:event_cmbProductPopupMenuWillBecomeVisible
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
         if (!(tblSizes.getSelectedRow() >=0))return;
