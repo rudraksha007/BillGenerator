@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="derbyoptionaltools">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../../Desktop/New folder/derbyoptionaltools.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../Desktop/New folder/derby.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../Desktop/New folder/derbyshared.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../Desktop/New folder/derbytools.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
