@@ -26,7 +26,7 @@ public class DataManager {
     public void startServer(){
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
-            con = DriverManager.getConnection(dbURL+";create=true;user=rudr;password=rudra.rudra");
+            con = DriverManager.getConnection(dbURL+";create=true;");
             System.out.println("Derby Database Started Successfully");
         } catch (SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
@@ -96,7 +96,6 @@ public class DataManager {
                     System.out.println("Error: Can't create new File for saving Data");
                     return;
                 }
-                System.out.println(f.getAbsolutePath());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -135,11 +134,8 @@ public class DataManager {
                 File.separator+"Local"+File.separator+"BillGenerator"+File.separator;
     }
 
-    public void addEntry(Date date, String party, String address, String supplier,EntryType type, float value,
-                         String remark){
-        createTable("Transactions", "Date DATE","Party VARCHAR(50)","Address VARCHAR(50)","Supplier VARCHAR(50)",
-                "Purchased DECIMAL(11,2)", "Paid_to_DBC DECIMAL(11,2)","Sale DECIMAL(11,2)","Received DECIMAL(11,2)",
-                "Remark VARCHAR(50)");
+    public void addTransactionEntry(Date date, String party, String address, String supplier, EntryType type, float value,
+                                    String remark){
         if (remark==null)remark=" ";
         try {
             Statement statement = con.createStatement();
@@ -154,12 +150,17 @@ public class DataManager {
             for (int i = 5; i < 9; i++) {
                 if (i == type.getIndex())s.setFloat(i, value);
                 else s.setFloat(i,0);
-                System.out.println(i);
             }
             s.setString(9, remark);
             s.executeUpdate();
             s.close();
         } catch (SQLException e) {
+            if (e.getSQLState().equalsIgnoreCase("42X05")){
+                createTable("Transactions", "Date DATE","Party VARCHAR(50)","Address VARCHAR(50)","Supplier VARCHAR(50)",
+                        "Purchased DECIMAL(11,2)", "Paid_to_DBC DECIMAL(11,2)","Sale DECIMAL(11,2)","Received DECIMAL(11,2)",
+                        "Remark VARCHAR(50)");
+                return;
+            }
             e.printStackTrace();
         }
     }
@@ -175,9 +176,6 @@ public class DataManager {
             }
             sql.append(")");
             statement.executeUpdate(sql.toString());
-//            statement.executeUpdate("CREATE TABLE "+tableName+" (" +
-//            "S_No INT"+"Date DATE"+"Party VARCHAR(100)"+"Address VARCHAR(100)"+"Purchased DECIMAL(11,2)"+
-//                    "Paid_to_DBC DECIMAL(11,2)"+"Sale DECIMAL(11,2)"+"Received DECIMAL(11,2)"+"Remark VARCHAR(100))");
             statement.close();
         } catch (SQLException e) {
             if (e.getSQLState().equalsIgnoreCase("X0Y32"))return;
@@ -189,9 +187,9 @@ public class DataManager {
         try {
             Statement state = con.createStatement();
             ResultSet set = state.executeQuery(command);
-            state.close();
             return set;
         } catch (SQLException e) {
+            if (e.getSQLState().equalsIgnoreCase("42X05"))return null;
             e.printStackTrace();
         }
         return null;

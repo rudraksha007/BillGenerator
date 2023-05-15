@@ -25,14 +25,14 @@ public class Utils {
         field.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
-                if (Character.isDigit(e.getKeyChar())||e.getKeyChar()=='.')return;
+                if (Character.isDigit(e.getKeyChar())||e.getKeyChar()=='.'||e.getKeyCode()==KeyEvent.VK_BACK_SPACE)return;
                 e.setKeyChar('\0');
                 Toolkit.getDefaultToolkit().beep();
             }
 
             @Override
             public void keyPressed(KeyEvent e) {
-                if (Character.isDigit(e.getKeyChar())||e.getKeyChar()=='.')return;
+                if (Character.isDigit(e.getKeyChar())||e.getKeyChar()=='.'||e.getKeyCode()==KeyEvent.VK_BACK_SPACE)return;
                 e.consume();
                 e.setKeyChar('\0');
             }

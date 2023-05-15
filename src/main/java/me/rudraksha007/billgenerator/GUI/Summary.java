@@ -5,12 +5,20 @@
 
 package me.rudraksha007.billgenerator.GUI;
 
+import me.rudraksha007.billgenerator.AppFrame;
+import me.rudraksha007.billgenerator.Main;
 import me.rudraksha007.billgenerator.utilities.DataManager;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.event.ItemEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,8 +33,22 @@ public class Summary extends javax.swing.JFrame {
     /** Creates new form Summary */
     public Summary() {
         initComponents();
+        this.setLocationRelativeTo(null);
         setTableData(data.get("SELECT * FROM Transactions"));
+        dtFrom.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (!evt.getPropertyName().equalsIgnoreCase("date"))return;
+                setFilteredTableData();
+            }
+        });
         starting = false;
+    }
+
+    @Override
+    public void setVisible(boolean visible){
+        super.setVisible(visible);
+        setTableData(data.get("SELECT * FROM Transactions"));
     }
 
     /** This method is called from within the constructor to
@@ -38,19 +60,30 @@ public class Summary extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jDateChooser2 = new com.toedter.calendar.JDateChooser();
         pnlFilters = new javax.swing.JPanel();
         cmbParty = new javax.swing.JComboBox<>();
         cmbSupplier = new javax.swing.JComboBox<>();
         cmbLocation = new javax.swing.JComboBox<>();
         cmbRemark = new javax.swing.JComboBox<>();
+        dtFrom = new com.toedter.calendar.JDateChooser();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        dtTo = new com.toedter.calendar.JDateChooser();
+        cmbTransaction = new javax.swing.JComboBox<>();
         pnlData = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
         pnlSum = new javax.swing.JPanel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(640, 480));
         setPreferredSize(new java.awt.Dimension(1280, 720));
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         cmbParty.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Party" }));
         cmbParty.addItemListener(new java.awt.event.ItemListener() {
@@ -80,21 +113,42 @@ public class Summary extends javax.swing.JFrame {
             }
         });
 
+        jLabel1.setText("From");
+
+        jLabel2.setText("To");
+
+        cmbTransaction.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All Transactions", "Purchase", "Paid To DBC", "Sale", "Pay Received" }));
+
         javax.swing.GroupLayout pnlFiltersLayout = new javax.swing.GroupLayout(pnlFilters);
         pnlFilters.setLayout(pnlFiltersLayout);
         pnlFiltersLayout.setHorizontalGroup(
             pnlFiltersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlFiltersLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(cmbParty, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(pnlFiltersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(pnlFiltersLayout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addGap(16, 16, 16)
+                        .addComponent(dtFrom, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(cmbParty, 0, 150, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(cmbLocation, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(pnlFiltersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnlFiltersLayout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(dtTo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(cmbLocation, 0, 150, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(cmbSupplier, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(pnlFiltersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(cmbTransaction, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(cmbSupplier, 0, 147, Short.MAX_VALUE))
                 .addGap(8, 8, 8)
-                .addComponent(cmbRemark, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(cmbRemark, 0, 149, Short.MAX_VALUE)
                 .addContainerGap())
         );
+
+        pnlFiltersLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabel1, jLabel2});
+
         pnlFiltersLayout.setVerticalGroup(
             pnlFiltersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlFiltersLayout.createSequentialGroup()
@@ -104,7 +158,13 @@ public class Summary extends javax.swing.JFrame {
                     .addComponent(cmbSupplier, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cmbLocation, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cmbRemark, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
+                .addGroup(pnlFiltersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(dtFrom, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(dtTo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cmbTransaction, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
         table.setModel(new javax.swing.table.DefaultTableModel(
@@ -116,7 +176,7 @@ public class Summary extends javax.swing.JFrame {
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                true, true, true, true, true, true, true, true, true, false
+                false, false, false, false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -136,7 +196,7 @@ public class Summary extends javax.swing.JFrame {
         );
         pnlDataLayout.setVerticalGroup(
             pnlDataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 316, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 312, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout pnlSumLayout = new javax.swing.GroupLayout(pnlSum);
@@ -147,7 +207,7 @@ public class Summary extends javax.swing.JFrame {
         );
         pnlSumLayout.setVerticalGroup(
             pnlSumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 102, Short.MAX_VALUE)
+            .addGap(0, 82, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -168,7 +228,7 @@ public class Summary extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(pnlFilters, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(pnlData, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(pnlData, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(pnlSum, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
@@ -177,21 +237,26 @@ public class Summary extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cmbPartyItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cmbPartyItemStateChanged
-
-        setTableData(data.get("SELECT * FROM Transactions WHERE "));
+        if (evt.getStateChange()!= ItemEvent.SELECTED)return;
+        setFilteredTableData();
     }//GEN-LAST:event_cmbPartyItemStateChanged
 
     private void cmbLocationItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cmbLocationItemStateChanged
-        // TODO add your handling code here:
+        cmbPartyItemStateChanged(evt);
     }//GEN-LAST:event_cmbLocationItemStateChanged
 
     private void cmbSupplierItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cmbSupplierItemStateChanged
-        // TODO add your handling code here:
+        cmbPartyItemStateChanged(evt);
     }//GEN-LAST:event_cmbSupplierItemStateChanged
 
     private void cmbRemarkItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cmbRemarkItemStateChanged
-        // TODO add your handling code here:
+        cmbPartyItemStateChanged(evt);
     }//GEN-LAST:event_cmbRemarkItemStateChanged
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        Main.frames.get(AppFrame.home).setVisible(true);
+        this.setVisible(false);
+    }//GEN-LAST:event_formWindowClosing
 
     /**
      * @param args the command line arguments
@@ -233,6 +298,12 @@ public class Summary extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> cmbParty;
     private javax.swing.JComboBox<String> cmbRemark;
     private javax.swing.JComboBox<String> cmbSupplier;
+    private javax.swing.JComboBox<String> cmbTransaction;
+    private com.toedter.calendar.JDateChooser dtFrom;
+    private com.toedter.calendar.JDateChooser dtTo;
+    private com.toedter.calendar.JDateChooser jDateChooser2;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPanel pnlData;
     private javax.swing.JPanel pnlFilters;
@@ -243,25 +314,35 @@ public class Summary extends javax.swing.JFrame {
     public void setFilteredTableData(){
         StringBuilder command = new StringBuilder("SELECT * FROM Transactions");
         if (cmbParty.getSelectedIndex()!=0){
-            command.append("WHERE Party = '").append(cmbParty.getSelectedItem()).append("'");
+            command.append(" WHERE Party = '").append(cmbParty.getSelectedItem()).append("'");
         }
         if (cmbLocation.getSelectedIndex()!=0){
-            if (command.toString().contains("WHERE"))command.append(" AND");
-            else command.append(" WHERE");
+            addConditionSeperator(command);
             command.append(" Address = '").append(cmbLocation.getSelectedItem()).append("'");
         }
         if (cmbSupplier.getSelectedIndex()!=0){
-            if (command.toString().contains("WHERE"))command.append(" AND");
-            else command.append(" WHERE");
+            addConditionSeperator(command);
             command.append(" Supplier = '").append(cmbSupplier.getSelectedItem()).append("'");
         }
         if (cmbRemark.getSelectedIndex()!=0){
-            if (command.toString().contains("WHERE"))command.append(" AND");
-            else command.append(" WHERE");
+            addConditionSeperator(command);
             command.append(" Remark = '").append(cmbRemark.getSelectedItem()).append("'");
         }
+        if (dtFrom.getDate()!=null){
+            addConditionSeperator(command);
+            command.append(" Date > '").append(Date.valueOf(LocalDate.ofInstant(dtFrom.getDate().toInstant(), ZoneId.systemDefault())))
+                    .append("'");
+        }
+        if (dtTo.getDate()!=null){
+            addConditionSeperator(command);
+            command.append(" Date < '").append(Date.valueOf(LocalDate.ofInstant(dtTo.getDate().toInstant(), ZoneId.systemDefault())))
+                    .append("'");
+        }
+        setTableData(data.get(command.toString()));
     }
     public void setTableData(ResultSet set){
+        if (set==null)return;
+        ((DefaultTableModel)table.getModel()).setRowCount(0);
         DefaultTableModel model = (DefaultTableModel) table.getModel();
         List<String> partyModel = new ArrayList<>();
         List<String> locModel = new ArrayList<>();
@@ -287,6 +368,7 @@ public class Summary extends javax.swing.JFrame {
                 });
                 i++;
             }
+            set.getStatement().close();
             if (starting){
                 ((DefaultComboBoxModel<String>)cmbParty.getModel()).addAll(partyModel);
                 ((DefaultComboBoxModel<String>)cmbLocation.getModel()).addAll(locModel);
@@ -296,5 +378,11 @@ public class Summary extends javax.swing.JFrame {
         }catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public StringBuilder addConditionSeperator(StringBuilder s){
+        if (s.toString().contains("WHERE"))s.append(" AND");
+        else s.append(" WHERE");
+        return s;
     }
 }

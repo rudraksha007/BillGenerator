@@ -286,7 +286,7 @@
                       <Component id="btnAddProduct" max="32767" attributes="0"/>
                       <Component id="btnNewBill" max="32767" attributes="0"/>
                       <Component id="btnEdit" max="32767" attributes="0"/>
-                      <Component id="btnEmployees" alignment="1" max="32767" attributes="0"/>
+                      <Component id="btnSum" alignment="1" max="32767" attributes="0"/>
                       <Component id="btnExit" alignment="1" max="32767" attributes="0"/>
                       <Component id="btnSalerData" max="32767" attributes="0"/>
                   </Group>
@@ -311,7 +311,7 @@
                       <Component id="btnCancel" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="btnEmployees" min="-2" max="-2" attributes="0"/>
+                  <Component id="btnSum" min="-2" max="-2" attributes="0"/>
                   <EmptySpace pref="187" max="32767" attributes="0"/>
               </Group>
           </Group>
@@ -327,13 +327,13 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnExitActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="btnEmployees">
+        <Component class="javax.swing.JButton" name="btnSum">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Employee&apos;s Data"/>
+            <Property name="text" type="java.lang.String" value="Transaction Summary"/>
             <Property name="focusPainted" type="boolean" value="false"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnEmployeesActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnSumActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JButton" name="btnEdit">

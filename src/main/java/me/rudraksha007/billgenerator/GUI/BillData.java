@@ -488,7 +488,7 @@ public class BillData extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(billToParty, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(GST, javax.swing.GroupLayout.DEFAULT_SIZE, 334, Short.MAX_VALUE)
+                .addComponent(GST, javax.swing.GroupLayout.DEFAULT_SIZE, 351, Short.MAX_VALUE)
                 .addContainerGap())
         );
         invoiceDetailsLayout.setVerticalGroup(
@@ -496,7 +496,7 @@ public class BillData extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, invoiceDetailsLayout.createSequentialGroup()
                 .addGroup(invoiceDetailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(billToParty, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(GST, javax.swing.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE))
+                    .addComponent(GST, javax.swing.GroupLayout.DEFAULT_SIZE, 138, Short.MAX_VALUE))
                 .addGap(40, 40, 40))
         );
 
@@ -589,7 +589,7 @@ public class BillData extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel8)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtRemarks, javax.swing.GroupLayout.DEFAULT_SIZE, 92, Short.MAX_VALUE)
+                        .addComponent(txtRemarks, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -598,6 +598,9 @@ public class BillData extends javax.swing.JFrame {
                         .addComponent(lblTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
+
+        invoiceDataLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {lblTotal, txtRemarks});
+
         invoiceDataLayout.setVerticalGroup(
             invoiceDataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(invoiceDataLayout.createSequentialGroup()
@@ -692,14 +695,14 @@ public class BillData extends javax.swing.JFrame {
         , JOptionPane.YES_NO_CANCEL_OPTION);
         if (r!=JOptionPane.YES_OPTION)return;
         Date selectedDate = Date.valueOf(LocalDate.ofInstant(date.getDate().toInstant(), ZoneId.systemDefault()));
-        manager.addEntry(selectedDate, txtName.getText(), txtAddress.getText(),
+        manager.addTransactionEntry(selectedDate, txtName.getText(), txtAddress.getText(),
                 String.valueOf(cmbEmployee.getSelectedItem()), DataManager.EntryType.SALE,
                 Float.parseFloat(lblTotal.getText().split("₹")[1]), txtRemarks.getText());
         Main.Employees.add(String.valueOf(cmbEmployee.getSelectedItem()));
         manager.saveUserData(Main.Employees, "employeeData.data");
-        clear();
-        table.clearSelection();
-        menuPane.setVisible(false);
+        new DataManager().addTransactionEntry(Date.valueOf(LocalDate.ofInstant(date.getDate().toInstant(), ZoneId.systemDefault())),
+                txtName.getText(), txtAddress.getText(), cmbEmployee.getSelectedItem().toString(), DataManager.EntryType.SALE,
+                Float.parseFloat(lblTotal.getText().split("₹")[1]), txtRemarks.getText());
         Main.frames.get("home").setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnSaveActionPerformed
@@ -815,7 +818,6 @@ public class BillData extends javax.swing.JFrame {
         if (menu.getSelectedIndex() == -1) {
             menu.setSelectedIndex(0);
         }
-        System.out.println(menu.getSelectedValue());
         if (menu.getSelectedValue().split("/").length<3){
             if (table.editCellAt(table.getSelectedRow(),1)){
                 table.changeSelection(table.getSelectedRow(),1, false, false);

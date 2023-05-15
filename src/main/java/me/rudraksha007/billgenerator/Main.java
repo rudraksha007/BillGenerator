@@ -3,6 +3,7 @@ package me.rudraksha007.billgenerator;
 import me.rudraksha007.billgenerator.GUI.AddProduct;
 import me.rudraksha007.billgenerator.GUI.BillData;
 import me.rudraksha007.billgenerator.GUI.Home;
+import me.rudraksha007.billgenerator.GUI.Summary;
 import me.rudraksha007.billgenerator.utilities.DataManager;
 
 import javax.swing.*;
@@ -34,8 +35,8 @@ public class Main {
         }else itemMap = new HashMap<>();
         SwingUtilities.invokeLater(() -> {
             frames.put("home", new Home(data!=null));
-            frames.put("bill-data", new BillData());
             frames.put("add-product", new AddProduct());
+            frames.put("summary", new Summary());
             frames.get("home").setVisible(true);
         });
 //        new Connections().initialize();

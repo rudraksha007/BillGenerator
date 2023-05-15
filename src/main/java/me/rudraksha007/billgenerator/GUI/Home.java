@@ -70,7 +70,7 @@ public class Home extends javax.swing.JFrame {
         lblCompany = new javax.swing.JLabel();
         pnlButtons = new javax.swing.JPanel();
         btnExit = new javax.swing.JButton();
-        btnEmployees = new javax.swing.JButton();
+        btnSum = new javax.swing.JButton();
         btnEdit = new javax.swing.JButton();
         btnNewBill = new javax.swing.JButton();
         btnAddProduct = new javax.swing.JButton();
@@ -200,11 +200,11 @@ public class Home extends javax.swing.JFrame {
             }
         });
 
-        btnEmployees.setText("Employee's Data");
-        btnEmployees.setFocusPainted(false);
-        btnEmployees.addActionListener(new java.awt.event.ActionListener() {
+        btnSum.setText("Transaction Summary");
+        btnSum.setFocusPainted(false);
+        btnSum.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnEmployeesActionPerformed(evt);
+                btnSumActionPerformed(evt);
             }
         });
 
@@ -260,7 +260,7 @@ public class Home extends javax.swing.JFrame {
                     .addComponent(btnAddProduct, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnNewBill, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnEdit, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnEmployees, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnSum, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnExit, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnSalerData, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(31, 31, 31))
@@ -281,7 +281,7 @@ public class Home extends javax.swing.JFrame {
                     .addComponent(btnSalerData)
                     .addComponent(btnCancel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnEmployees)
+                .addComponent(btnSum)
                 .addContainerGap(187, Short.MAX_VALUE))
         );
 
@@ -430,7 +430,6 @@ public class Home extends javax.swing.JFrame {
 
     @SuppressWarnings("unchecked")
     private void btnNewBillActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewBillActionPerformed
-        // TODO add your handling code here:
         this.setVisible(false);
         new BillData().setVisible(true);
     }//GEN-LAST:event_btnNewBillActionPerformed
@@ -466,9 +465,10 @@ public class Home extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnSalerDataActionPerformed
 
-    private void btnEmployeesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEmployeesActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnEmployeesActionPerformed
+    private void btnSumActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSumActionPerformed
+        new Summary().setVisible(true);
+        this.setVisible(false);
+    }//GEN-LAST:event_btnSumActionPerformed
 
     private void txtIfscActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtIfscActionPerformed
         // TODO add your handling code here:
@@ -486,10 +486,10 @@ public class Home extends javax.swing.JFrame {
     private javax.swing.JButton btnAddProduct;
     private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnEdit;
-    private javax.swing.JButton btnEmployees;
     private javax.swing.JButton btnExit;
     private javax.swing.JButton btnNewBill;
     private javax.swing.JButton btnSalerData;
+    private javax.swing.JButton btnSum;
     private javax.swing.JComboBox<String> cmbState;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
