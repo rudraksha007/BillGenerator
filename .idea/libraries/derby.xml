@@ -1,16 +1,9 @@
 <component name="libraryTable">
   <library name="derby">
     <CLASSES>
-      <root url="jar://H:/Downloads/JARs/derby.jar!/" />
-      <root url="jar://H:/Downloads/JARs/derbyclient.jar!/" />
-      <root url="jar://H:/Downloads/JARs/derbytools.jar!/" />
-      <root url="jar://H:/Downloads/JARs/derbyshared.jar!/" />
-      <root url="file://$PROJECT_DIR$" />
-      <root url="jar://H:/Downloads/JARs/derbyoptionaltools.jar!/" />
+      <root url="jar://$USER_HOME$/OneDrive/Desktop/New folder/derby.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES>
-      <root url="file://$PROJECT_DIR$/src/main/java" />
-    </SOURCES>
+    <SOURCES />
   </library>
 </component>

@@ -128,7 +128,7 @@ public class DataManager {
         }
     }
 
-    public String getDataFolder(){
+    public static String getDataFolder(){
 
         return System.getProperty("user.home")+File.separator+"AppData"+
                 File.separator+"Local"+File.separator+"BillGenerator"+File.separator;

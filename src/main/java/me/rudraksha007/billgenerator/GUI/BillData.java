@@ -6,6 +6,7 @@ package me.rudraksha007.billgenerator.GUI;
 
 import me.rudraksha007.billgenerator.Item;
 import me.rudraksha007.billgenerator.Main;
+import me.rudraksha007.billgenerator.POI.SpreadsheetTools;
 import me.rudraksha007.billgenerator.utilities.DataManager;
 
 import javax.swing.*;
@@ -703,6 +704,7 @@ public class BillData extends javax.swing.JFrame {
         new DataManager().addTransactionEntry(Date.valueOf(LocalDate.ofInstant(date.getDate().toInstant(), ZoneId.systemDefault())),
                 txtName.getText(), txtAddress.getText(), cmbEmployee.getSelectedItem().toString(), DataManager.EntryType.SALE,
                 Float.parseFloat(lblTotal.getText().split("₹")[1]), txtRemarks.getText());
+        new SpreadsheetTools().saveXLSX(((DefaultTableModel)table.getModel()).getDataVector());
         Main.frames.get("home").setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnSaveActionPerformed
