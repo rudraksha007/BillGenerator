@@ -10,8 +10,6 @@ import me.rudraksha007.billgenerator.Item;
 import me.rudraksha007.billgenerator.Main;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ItemEvent;
@@ -37,12 +35,7 @@ public class AddProduct extends javax.swing.JFrame {
         btnSave.setFocusPainted(false);
         btnAdd.setFocusPainted(false);
         btnDelete.setFocusPainted(false);
-        tblSizes.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                btnDelete.setEnabled(true);
-            }
-        });
+        tblSizes.getSelectionModel().addListSelectionListener(e -> btnDelete.setEnabled(true));
         setupInaccessibleListeners();
     }
 
@@ -360,7 +353,7 @@ public class AddProduct extends javax.swing.JFrame {
             }
         }
 
-        new DataManager().saveData();
+        new DataManager().saveProducts();
         Main.frames.get(AppFrame.home).setVisible(true);
         this.setVisible(false);
         clearForm();

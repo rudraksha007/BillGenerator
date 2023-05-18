@@ -10,6 +10,13 @@ import java.io.File;
 import java.io.IOException;
 
 public class Utils {
+
+    private static final String[] units = {"", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+            "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"};
+
+    private static final String[] tens = {"", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"};
+
+    private static final String[] groups = {"", "thousand", "lakh", "crore"};
     public Font getBookManOldStyleFont(){
         try {
             return Font.createFont(Font.TRUETYPE_FONT,
@@ -43,4 +50,39 @@ public class Utils {
             }
         });
     }
+
+    private String convertToWords(int number, String suffix){
+        if (number==0)return "";
+        char[] s = String.valueOf(number).toCharArray();
+        if (s.length==0)return "";
+        if (s[0]=='1'||s[0]=='0'){
+            return units[number]+" "+suffix+" ";
+        }else {
+            StringBuilder str = new StringBuilder();
+            int ten = number/10;
+            if (ten>0)str = new StringBuilder(tens[ten]);
+            int rem = number-ten*10;
+            if (rem>0)str.append(" ").append(units[rem]);
+            return str+" "+suffix+" ";
+        }
+    }
+
+    public String getNumInWords(int number) {
+        StringBuilder word = new StringBuilder();
+        int crore = number/10000000;
+        if (crore<0)crore = 0;
+        int lakh = (number-crore*10000000)/100000;
+        if (lakh<0)lakh = 0;
+        int thousand = (number-crore*10000000-lakh*100000)/1000;
+        if (thousand<0)thousand = 0;
+        int hundreds = (number-crore*10000000-lakh*100000-thousand*1000)/100;
+        if (hundreds<0)hundreds = 0;
+        int remaining = (number-crore*10000000-lakh*100000-thousand*1000-hundreds*100);
+
+        word.append(convertToWords(crore, "crore")).append(convertToWords(lakh, "lakh"))
+                .append(convertToWords(thousand, "thousand")).append(convertToWords(hundreds, "hundred"))
+                .append(convertToWords(remaining, "")).append("only");
+        return word.toString();
+    }
+
 }

@@ -25,9 +25,10 @@ public class DataManager {
     }
     public void startServer(){
         try {
+            System.out.println("Starting Local Database Server");
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
             con = DriverManager.getConnection(dbURL+";create=true;");
-            System.out.println("Derby Database Started Successfully");
+            System.out.println("Local Database Started Successfully");
         } catch (SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
@@ -48,24 +49,16 @@ public class DataManager {
             e.printStackTrace();
         }
     }
-    public Map<String, Item> loadProductData(){
-        File f = new File(getDataFolder()+"productList.data");
-        if (!f.exists())return null;
-        try {
-            FileInputStream fos = new FileInputStream(f);
-            ObjectInputStream in = new ObjectInputStream(fos);
-            Map<String,String>map = (Map<String, String>) in.readObject();
-            Map<String,Item>items = new HashMap<>();
-            for (Map.Entry<String, String>entry: map.entrySet()){
-                items.put(entry.getKey(), new Item(entry.getValue()));
-            }
-            return items;
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+    public Map<String, Item> loadProducts(){
+        Map<String,String>map = (Map<String, String>) loadData("productList.data");
+        if (map==null||map.isEmpty())return null;
+        Map<String,Item>items = new HashMap<>();
+        for (Map.Entry<String, String>entry: map.entrySet()){
+            items.put(entry.getKey(), new Item(entry.getValue()));
         }
-        return null;
+        return items;
     }
-    public Object loadUserData(String path){
+    public Object loadData(String path){
         File f = new File(getDataFolder()+path);
         if (!f.exists())return null;
         try {
@@ -77,43 +70,22 @@ public class DataManager {
         return null;
     }
 
-    public void saveData(){
+    public void saveProducts(){
         File f = new File(getDataFolder()+"productList.data");
         Map<String, String>map = new HashMap<>();
         for (Map.Entry<String,Item> entry: Main.itemMap.entrySet()){
             map.put(entry.getKey(), entry.getValue().toString());
         }
-        if (!f.exists()) {
-            try {
-                f = new File(System.getProperty("user.home")+File.separator+"AppData"+
-                        File.separator+"Local"+File.separator+"BillGenerator");
-                if (!f.exists())if (!f.mkdir()) {
-                    System.out.println("Error: Can't create new Folder for saving Data");
-                    return;
-                }
-                f = new File(f.getAbsolutePath()+File.separator+"productList.data");
-                if (!f.exists())if (!f.createNewFile()) {
-                    System.out.println("Error: Can't create new File for saving Data");
-                    return;
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        try {
-            FileOutputStream fos = new FileOutputStream(f,false);
-            ObjectOutputStream out = new ObjectOutputStream(fos);
-            out.writeObject(map);
-            out.flush();
-            out.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        saveData(map, "productList.data");
     }
 
-    public void saveUserData(Object o, String path){
+    public void saveData(Object o, String path){
         try {
             File f = new File(getDataFolder()+path);
+            if (!f.getParentFile().exists())if (!f.getParentFile().mkdir()){
+                System.out.println("Error: Can't create new Folder for saving Data");
+                return;
+            }
             if (!f.exists())if (!f.createNewFile()) {
                 System.out.println("Error: Can't create new File for saving Data");
                 return;
@@ -129,7 +101,6 @@ public class DataManager {
     }
 
     public static String getDataFolder(){
-
         return System.getProperty("user.home")+File.separator+"AppData"+
                 File.separator+"Local"+File.separator+"BillGenerator"+File.separator;
     }
@@ -138,7 +109,6 @@ public class DataManager {
                                     String remark){
         if (remark==null)remark=" ";
         try {
-            Statement statement = con.createStatement();
             String sql = "INSERT INTO Transactions(Date, Party, Address, Supplier, Purchased, Paid_to_DBC, " +
                     "Sale, Received, Remark)" +
                     " VALUES (?,?,?,?,?,?,?,?,?)";
@@ -164,7 +134,7 @@ public class DataManager {
             e.printStackTrace();
         }
     }
-    public void createTable(String tableName, String... columns){
+    public ResultSet createTable(String tableName, String... columns){
         try {
             Statement statement = con.createStatement();
             StringBuilder sql = new StringBuilder("CREATE TABLE " + tableName + " (");
@@ -178,11 +148,19 @@ public class DataManager {
             statement.executeUpdate(sql.toString());
             statement.close();
         } catch (SQLException e) {
-            if (e.getSQLState().equalsIgnoreCase("X0Y32"))return;
+            if (e.getSQLState().equalsIgnoreCase("X0Y32")){
+                System.out.println(tableName+" already exists, loading instead");
+                try {
+                    Statement statement = con.createStatement();
+                    return statement.executeQuery("SELECT * FROM "+tableName);
+                } catch (SQLException ex) {System.out.println("Error while reading Data");throw new RuntimeException(ex);}
+            }
             e.printStackTrace();
         }
+        return null;
     }
 
+    @SuppressWarnings("all")
     public ResultSet get(String command){
         try {
             Statement state = con.createStatement();

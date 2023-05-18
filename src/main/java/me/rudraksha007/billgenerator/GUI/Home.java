@@ -459,7 +459,7 @@ public class Home extends javax.swing.JFrame {
                     txtBank.getText(),txtAcc.getText(),txtBranch.getText(), txtIfsc.getText(), Float.parseFloat(txtCgst.getText()),
                     Float.parseFloat(txtSgst.getText()), Float.parseFloat(txtIgst.getText()));
             btnCancelActionPerformed(null);
-            new DataManager().saveUserData(Main.data, "userData.data");
+            new DataManager().saveData(Main.data, "userData.data");
         }else {
             toggleAccessibility();
         }
