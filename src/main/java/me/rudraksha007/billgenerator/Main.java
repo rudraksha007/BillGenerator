@@ -1,5 +1,7 @@
 package me.rudraksha007.billgenerator;
 
+import com.formdev.flatlaf.FlatLaf;
+import me.rudraksha007.billgenerator.GUI.AddParty;
 import me.rudraksha007.billgenerator.GUI.AddProduct;
 import me.rudraksha007.billgenerator.GUI.Home;
 import me.rudraksha007.billgenerator.GUI.Summary;
@@ -15,24 +17,15 @@ public class Main {
     public static Map<String, JFrame> frames = new HashMap<>();
     public static Map<String, Item>itemMap = dataManager.loadProducts();
     public static List<String>searchList = new ArrayList<>();
-    public static List<String>Employees = (List<String>) dataManager.loadData("employeeData.data");
-    public static UserData data = (UserData) dataManager.loadData("userData.data");
+    public static List<String>Employees;
+    public static UserData data;
 
     public static void main(String[] args) {
         dataManager.startServer();
-        if (Employees==null)Employees = new ArrayList<>();
-        if (itemMap!=null){
-            for (String s: itemMap.keySet()){
-                searchList.add(s);
-                for (String var: itemMap.get(s).getSizes().keySet()){
-                    searchList.add(s+"/"+var);
-                }
-            }
-        }else itemMap = new HashMap<>();
         SwingUtilities.invokeLater(() -> {
             frames.put("home", new Home(data!=null));
             frames.put("add-product", new AddProduct());
-            frames.put("summary", new Summary());
+            frames.put("add-party", new AddParty());
             frames.get("home").setVisible(true);
         });
 

@@ -10,12 +10,11 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.awt.*;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Vector;
@@ -29,17 +28,24 @@ public class SpreadsheetTools {
     public boolean saveXLSX(String invoice, String invoiceDate, String transport, String vehicleNo, String party,
                          String partyAddress,String partyGstIn, String partyState, int total, Vector<Vector> data){
         try {
-            File toSave = new File(DataManager.getDataFolder()+("Exports/"+invoice+".xlsx").replace("/", File.separator));
-            System.out.println(toSave.getAbsolutePath());
+            File toSave = new File(DataManager.getDataFolder()+("Exports/"+
+                    invoice.replace("\\","-").replace("/","-")+".xlsx").replace("/", File.separator));
+            if (!toSave.getParentFile().exists()) toSave.getParentFile().mkdirs();
             ZipSecureFile.setMinInflateRatio(0);
-            if (toSave.exists())return false;
-            if (!toSave.getParentFile().exists()) toSave.getParentFile().mkdir();
+            if (toSave.exists()) {
+                int i = 1;
+                while (new File(DataManager.getDataFolder()+("Exports/"+
+                        invoice.replace("\\","-").replace("/","-")+"-"+i+".xlsx").replace("/", File.separator)).exists()){
+                    i++;
+                }
+                toSave = new File(DataManager.getDataFolder()+("Exports/"+
+                        invoice.replace("\\","-").replace("/","-")+i+".xlsx").replace("/", File.separator));
+            }
             toSave.createNewFile();
             workbook = new XSSFWorkbook();
             Sheet sheet;
             int i = 0;
             do{
-                System.out.println("print");
                 if (data.size()>15)sheet = workbook.createSheet((workbook.getNumberOfSheets() + 1 )+"-"+i);
                 else sheet = workbook.createSheet(String.valueOf((workbook.getNumberOfSheets() + 1 )));
                 sheet.setDefaultColumnWidth(5);
@@ -49,7 +55,7 @@ public class SpreadsheetTools {
                     pasteData(sheet, data, i, rowOffset);
                     sheet.getRow(9+rowOffset).getCell(2).setCellValue(invoice);
                     sheet.getRow(9+rowOffset).getCell(12).setCellValue(transport);
-                    sheet.getRow(10+rowOffset).getCell(0).setCellValue(invoiceDate);
+                    sheet.getRow(10+rowOffset).getCell(2).setCellValue(invoiceDate);
                     sheet.getRow(10+rowOffset).getCell(12).setCellValue(vehicleNo);
                     sheet.getRow(13+rowOffset).getCell(2).setCellValue(party);
                     sheet.getRow(14+rowOffset).getCell(2).setCellValue(partyAddress);
@@ -71,6 +77,7 @@ public class SpreadsheetTools {
             workbook.close();
             stream.flush();
             stream.close();
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

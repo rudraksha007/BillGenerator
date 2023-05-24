@@ -8,6 +8,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Utils {
 
@@ -32,7 +34,7 @@ public class Utils {
         field.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
-                if (Character.isDigit(e.getKeyChar())||e.getKeyChar()=='.'||e.getKeyCode()==KeyEvent.VK_BACK_SPACE)return;
+                if (Character.isDigit(e.getKeyChar())||e.getKeyChar() == '.' ||e.getKeyCode()==KeyEvent.VK_BACK_SPACE)return;
                 e.setKeyChar('\0');
                 Toolkit.getDefaultToolkit().beep();
             }
@@ -85,4 +87,7 @@ public class Utils {
         return word.toString();
     }
 
+    public void runAfter(TimerTask task, long secs){
+        new Timer().schedule(task, secs*1000);
+    }
 }

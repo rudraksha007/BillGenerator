@@ -2,10 +2,13 @@ package me.rudraksha007.billgenerator.utilities;
 
 import me.rudraksha007.billgenerator.Item;
 import me.rudraksha007.billgenerator.Main;
+import me.rudraksha007.billgenerator.UserData;
 
 import java.io.*;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DataManager {
@@ -14,7 +17,7 @@ public class DataManager {
     private final String dbURL = "jdbc:derby:"+getDataFolder()+"Database";
 
     public enum EntryType{
-        PURCHASED(5), PAID_TO_DBC(6),SALE(7),RECEIVED (8);
+        PURCHASED(6), PAID_TO_DBC(7),SALE(8),RECEIVED (9);
         final int index;
         EntryType(int i) {
             index = i;
@@ -25,9 +28,29 @@ public class DataManager {
     }
     public void startServer(){
         try {
-            System.out.println("Starting Local Database Server");
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
             con = DriverManager.getConnection(dbURL+";create=true;");
+            System.out.println("Starting Local Database Server");
+            createTable("Bills", "InvoiceNo VARCHAR(100)","Data LONG VARCHAR");
+            createTable("Transactions", "InvoiceNo VARCHAR(100)","Date DATE","Party VARCHAR(50)",
+                    "Address VARCHAR(50)","Supplier VARCHAR(50)", "Purchased DECIMAL(11,2)",
+                    "Paid_to_DBC DECIMAL(11,2)","Sale DECIMAL(11,2)","Received DECIMAL(11,2)",
+                    "Remark VARCHAR(50)","Company VARCHAR(50)");
+            createTable("Parties", "Name VARCHAR(100)","Address VARCHAR(100)","State VARCHAR(50)",
+                    "Supplier VARCHAR(50)", "GSTIN VARCHAR(50)", "OpeningBal DECIMAL(11,2)");
+            Main.Employees= (List<String>) loadData("employeeData.data");
+            Main.data= (UserData) loadData("userData.data");
+            if (Main.Employees==null)Main.Employees = new ArrayList<>();
+            if (Main.itemMap!=null){
+                for (String s: Main.itemMap.keySet()){
+                    Main.searchList.add(s);
+                    for (String var: Main.itemMap.get(s).getSizes().keySet()){
+                        Main.searchList.add(s+"/"+var);
+                    }
+                }
+            }else Main.itemMap = new HashMap<>();
+
+
             System.out.println("Local Database Started Successfully");
         } catch (SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
@@ -48,6 +71,8 @@ public class DataManager {
             }
             e.printStackTrace();
         }
+        saveData(Main.Employees, "employeeData.data");
+        saveData(Main.itemMap, "productList.data");
     }
     public Map<String, Item> loadProducts(){
         Map<String,String>map = (Map<String, String>) loadData("productList.data");
@@ -106,35 +131,31 @@ public class DataManager {
     }
 
     public void addTransactionEntry(Date date, String party, String address, String supplier, EntryType type, float value,
-                                    String remark){
+                                    String remark, String invoice){
         if (remark==null)remark=" ";
         try {
-            String sql = "INSERT INTO Transactions(Date, Party, Address, Supplier, Purchased, Paid_to_DBC, " +
-                    "Sale, Received, Remark)" +
-                    " VALUES (?,?,?,?,?,?,?,?,?)";
+            String sql = "INSERT INTO Transactions(InvoiceNo, Date, Party, Address, Supplier, Purchased, Paid_to_DBC, " +
+                    "Sale, Received, Remark, Company)" +
+                    " VALUES (?,?,?,?,?,?,?,?,?,?,?)";
             PreparedStatement s = con.prepareStatement(sql);
-            s.setDate(1, date);
-            s.setString(2, party);
-            s.setString(3, address);
-            s.setString(4, supplier);
-            for (int i = 5; i < 9; i++) {
+            s.setString(1, invoice);
+            s.setDate(2, date);
+            s.setString(3, party);
+            s.setString(4, address);
+            s.setString(5, supplier);
+            for (int i = 6; i < 10; i++) {
                 if (i == type.getIndex())s.setFloat(i, value);
                 else s.setFloat(i,0);
             }
-            s.setString(9, remark);
+            s.setString(10, remark);
+            s.setString(11, Main.data.getCompanyName());
             s.executeUpdate();
             s.close();
         } catch (SQLException e) {
-            if (e.getSQLState().equalsIgnoreCase("42X05")){
-                createTable("Transactions", "Date DATE","Party VARCHAR(50)","Address VARCHAR(50)","Supplier VARCHAR(50)",
-                        "Purchased DECIMAL(11,2)", "Paid_to_DBC DECIMAL(11,2)","Sale DECIMAL(11,2)","Received DECIMAL(11,2)",
-                        "Remark VARCHAR(50)");
-                return;
-            }
             e.printStackTrace();
         }
     }
-    public ResultSet createTable(String tableName, String... columns){
+    public byte createTable(String tableName, String... columns){
         try {
             Statement statement = con.createStatement();
             StringBuilder sql = new StringBuilder("CREATE TABLE " + tableName + " (");
@@ -149,15 +170,13 @@ public class DataManager {
             statement.close();
         } catch (SQLException e) {
             if (e.getSQLState().equalsIgnoreCase("X0Y32")){
-                System.out.println(tableName+" already exists, loading instead");
-                try {
-                    Statement statement = con.createStatement();
-                    return statement.executeQuery("SELECT * FROM "+tableName);
-                } catch (SQLException ex) {System.out.println("Error while reading Data");throw new RuntimeException(ex);}
+                System.out.println(tableName+" already exists, Try loading instead");
+                return -1;
             }
             e.printStackTrace();
+            return 1;
         }
-        return null;
+        return 0;
     }
 
     @SuppressWarnings("all")
@@ -173,13 +192,28 @@ public class DataManager {
         return null;
     }
 
-    public void run(String cmd){
+    public byte run(String cmd){
         try {
             Statement state = con.createStatement();
             state.execute(cmd);
             state.close();
         } catch (SQLException e) {
+            if (e.getSQLState().equalsIgnoreCase("42X05"))return -1;
             e.printStackTrace();
+            return 1;
         }
+        return 0;
+    }
+
+    public byte run(PreparedStatement state){
+        try {
+            state.execute();
+            state.close();
+        } catch (SQLException e) {
+            if (e.getSQLState().equalsIgnoreCase("42X05"))return -1;
+            e.printStackTrace();
+            return 1;
+        }
+        return 0;
     }
 }

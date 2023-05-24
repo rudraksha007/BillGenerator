@@ -8,6 +8,7 @@ import me.rudraksha007.billgenerator.AppFrame;
 import me.rudraksha007.billgenerator.utilities.DataManager;
 import me.rudraksha007.billgenerator.Item;
 import me.rudraksha007.billgenerator.Main;
+import me.rudraksha007.billgenerator.utilities.Utils;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -37,6 +38,7 @@ public class AddProduct extends javax.swing.JFrame {
         btnDelete.setFocusPainted(false);
         tblSizes.getSelectionModel().addListSelectionListener(e -> btnDelete.setEnabled(true));
         setupInaccessibleListeners();
+        new Utils().setNumberOnly(txtCost);
     }
 
     public void setupInaccessibleListeners(){
@@ -101,11 +103,11 @@ public class AddProduct extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         txtHSN = new javax.swing.JTextField();
         txtCost = new javax.swing.JTextField();
+        jLabel5 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Add Product");
         setMinimumSize(new java.awt.Dimension(480, 550));
-        setPreferredSize(new java.awt.Dimension(480, 550));
         addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 formMouseClicked(evt);
@@ -129,7 +131,7 @@ public class AddProduct extends javax.swing.JFrame {
 
         jLabel2.setText("Product Name");
 
-        jLabel3.setText("Size and Cost");
+        jLabel3.setText("Variant");
 
         txtSize.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
@@ -230,10 +232,9 @@ public class AddProduct extends javax.swing.JFrame {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 txtCostKeyPressed(evt);
             }
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                txtCostKeyTyped(evt);
-            }
         });
+
+        jLabel5.setText("Cost");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -265,7 +266,9 @@ public class AddProduct extends javax.swing.JFrame {
                             .addComponent(cmbProduct, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel5))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
@@ -275,6 +278,9 @@ public class AddProduct extends javax.swing.JFrame {
                             .addComponent(txtSize))))
                 .addGap(57, 57, 57))
         );
+
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabel1, jLabel2, jLabel3, jLabel4, jLabel5});
+
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
@@ -300,18 +306,25 @@ public class AddProduct extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(txtSize, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(4, 4, 4)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnAdd)
-                    .addComponent(txtCost, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(4, 4, 4)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnAdd)
+                            .addComponent(txtCost, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel5)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 231, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnClear)
                     .addComponent(btnDelete))
                 .addGap(25, 25, 25))
         );
+
+        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {jLabel1, jLabel2, jLabel3, jLabel4, jLabel5});
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -326,6 +339,14 @@ public class AddProduct extends javax.swing.JFrame {
             return;
         }
         Map<String, Float> sizes = new HashMap<>();
+        if (cmbProduct.getSelectedIndex()>0&&this.tblSizes.getModel().getRowCount() < 1){
+            int res = JOptionPane.showConfirmDialog(this, "Since there is no variant listed, this product will be deleted," +
+                    " Do you really want to delete this?", "Confirm", JOptionPane.YES_NO_CANCEL_OPTION);
+            if (res!=JOptionPane.YES_OPTION)return;
+            Main.searchList.removeIf(s -> s.startsWith(cmbBrands.getSelectedItem() + "/" + cmbProduct.getSelectedItem()));
+            //TODO: delete this from item map too
+            btnCancelActionPerformed(null);
+        }
         if (this.tblSizes.getModel().getRowCount() < 1) {
             JOptionPane.showMessageDialog(this, "Please Add at least 1 variant"
                     , "Add Variant", JOptionPane.ERROR_MESSAGE);
@@ -408,6 +429,7 @@ public class AddProduct extends javax.swing.JFrame {
             }
             mod.setDataVector(data, new String[]{"Size", "Cost"});
             tblSizes.setModel(mod);
+            txtHSN.setText(i.getHsn());
             txtHSN.grabFocus();
         }
     }//GEN-LAST:event_cmbProductItemStateChanged
@@ -458,15 +480,7 @@ public class AddProduct extends javax.swing.JFrame {
 
     private void txtCostKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCostKeyPressed
         if (evt.getKeyCode()==KeyEvent.VK_ENTER)btnAddActionPerformed(null);
-        else if (!Character.isDigit(evt.getKeyChar())) evt.consume();
     }//GEN-LAST:event_txtCostKeyPressed
-
-    private void txtCostKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCostKeyTyped
-        if (Character.isDigit(evt.getKeyChar()))return;
-        if (evt.getKeyCode()==KeyEvent.VK_ENTER)return;
-        evt.setKeyChar('\0');
-        Toolkit.getDefaultToolkit().beep();
-    }//GEN-LAST:event_txtCostKeyTyped
 
     public void clearForm() {
         cmbBrands.setSelectedIndex(0);
@@ -542,6 +556,7 @@ public class AddProduct extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTextArea jTextArea1;
